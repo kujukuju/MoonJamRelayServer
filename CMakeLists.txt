@@ -15,6 +15,8 @@ include_directories(src)
 
 add_executable(MoonJamRelayServer
         src/main.cpp
+        src/APIServer.cpp
+        src/Helpers.cpp
         src/RelayServer.cpp
         src/WebsocketServer.cpp)
 

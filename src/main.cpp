@@ -1,23 +1,24 @@
+#include "Helpers.h"
 #include "WebsocketServer.h"
 #include "RelayServer.h"
-
-#include <cpphttplib/httplib.h>
+#include "APIServer.h"
 
 #include <thread>
 #include <iostream>
 
 int main() {
-    std::thread apiServer = std::thread([] {
-        httplib::Server server;
-        server.Get("/hi", [](const httplib::Request &, httplib::Response &res) {
-            res.set_content("Hello World!", "text/plain");
-        });
-        server.listen("0.0.0.0", 58006);
+    const std::string secret = readFile("../secretkey.txt");
+
+    std::thread apiServer = std::thread([&secret] {
+        APIServer server(58006, secret);
+        server.run();
 
         std::cerr << "API thread has exited on port 58006. This is bad. Restarting the server..." << std::endl;
 
         exit(1);
     });
+
+    // should setup another thread to read files out of the keys folder, so its async and simple, and so we can manually edit if we want
 
     std::thread pingThread = std::thread([] {
         WebsocketServer server(58007);
