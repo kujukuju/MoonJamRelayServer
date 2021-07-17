@@ -6,3 +6,4 @@ target/
 deploy/
 output/
 keys/*
+secretkey.txt
