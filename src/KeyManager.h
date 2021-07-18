@@ -12,7 +12,7 @@ struct AccessKeys {
 
 class KeyManager {
 public:
-    explicit KeyManager() = default;
+    explicit KeyManager();
 
     std::array<char, HASH_LENGTH> getRoom(std::array<char, HASH_LENGTH> key);
 

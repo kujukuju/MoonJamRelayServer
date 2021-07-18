@@ -3,6 +3,10 @@
 #include <filesystem>
 #include <iostream>
 
+KeyManager::KeyManager() {
+    refreshKeys();
+}
+
 void KeyManager::refreshKeys() {
     std::vector<AccessKeys> keys;
 

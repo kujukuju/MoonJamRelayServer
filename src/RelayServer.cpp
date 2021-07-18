@@ -66,6 +66,7 @@ void RelayServer::onClose(connection_hdl&& handle) {
         if (m_moonIdentifierToRoomMap.contains(identifier)) {
             std::array<char, HASH_LENGTH> room = m_moonIdentifierToRoomMap[identifier];
             m_packetAccumulator.destroyRoom(room);
+            std::cout << "Destroying room " << print(room) << std::endl;
         }
     }
 
@@ -86,6 +87,7 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
     }
 
     if (message.size() < HASH_LENGTH) {
+        std::cerr << "Closing connection due to a message that didn't include the room specifier." << std::endl;
         close(std::move(handle), websocketpp::close::status::internal_endpoint_error, "You must include a room specifier.");
         return;
     }
@@ -95,6 +97,7 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
 
     std::array<char, HASH_LENGTH> room = m_keyManager.getRoom(hash);
     if (room == empty) {
+        std::cerr << "Closing connection because the room is empty." << std::endl;
         close(std::move(handle), websocketpp::close::status::internal_endpoint_error, "Your room specifier cannot be empty.");
         return;
     }
@@ -106,12 +109,15 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
             const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
 
             if (m_moonIdentifierToRoomMap.contains(identifier)) {
+                std::cout << "Destroying existing room. " << print(room) << std::endl;
                 m_packetAccumulator.destroyRoom(room);
             }
 
+            std::cout << "Creating new room. " << print(room) << std::endl;
             m_moonIdentifierToRoomMap[identifier] = room;
             m_packetAccumulator.createRoom(room);
         } else {
+            std::cout << "Closing connection because the specified room doesn't exist." << print(room) << std::endl;
             close(std::move(handle), websocketpp::close::status::internal_endpoint_error, "Room not available. Moonmoon must connect first.");
             return;
         }

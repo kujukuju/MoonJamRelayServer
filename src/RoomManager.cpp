@@ -8,6 +8,16 @@ static const long long TICKRATE = 30;
 void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<char, HASH_LENGTH> room) {
     const std::lock_guard<std::mutex> roomLock(m_roomMutex);
 
+    // clean up dead threads here just because its convenient
+    {
+        const std::lock_guard<std::mutex> completedLock(m_completedMutex);
+        for (std::array<char, HASH_LENGTH> completedRoom : m_completedThreads) {
+            m_roomThreads[completedRoom].join();
+            m_roomThreads.erase(completedRoom);
+        }
+        m_completedThreads.clear();
+    }
+
     if (m_roomThreads.contains(room)) {
         return;
     }
@@ -22,23 +32,26 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
 
             // do stuff
             // for now just send back all packets? no filtering?
-            packetAccumulator.getConnections(connections, room);
             packetAccumulator.getPackets(packets, room);
 
-            int byteCount = 0;
-            for (auto& packet : packets) {
-                byteCount += packet.length;
-            }
-            bytes.resize(byteCount);
+            if (!packets.empty()) {
+                packetAccumulator.getConnections(connections, room);
 
-            int currentIndex = 0;
-            for (auto& packet : packets) {
-                std::memcpy(bytes.data() + currentIndex, packet.bytes.data(), packet.length);
-                currentIndex += packet.length;
-            }
+                int byteCount = 0;
+                for (auto &packet : packets) {
+                    byteCount += packet.length;
+                }
+                bytes.resize(byteCount);
 
-            for (auto& connection : connections) {
-                RelayServer::send(connection, bytes.data(), bytes.size());
+                int currentIndex = 0;
+                for (auto &packet : packets) {
+                    std::memcpy(bytes.data() + currentIndex, packet.bytes.data(), packet.length);
+                    currentIndex += packet.length;
+                }
+
+                for (auto &connection : connections) {
+                    RelayServer::send(connection, bytes.data(), bytes.size());
+                }
             }
 
             auto endTime = std::chrono::high_resolution_clock::now();
@@ -49,7 +62,7 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
         }
 
         // can you do this from within the thread that will be destroyed as a result of this action?
-        const std::lock_guard<std::mutex> roomLock(m_roomMutex);
-        m_roomThreads.erase(room);
+        const std::lock_guard<std::mutex> completedLock(m_completedMutex);
+        m_completedThreads.emplace_back(room);
     });
 }

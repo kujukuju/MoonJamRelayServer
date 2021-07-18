@@ -33,3 +33,5 @@ void writeFile(const std::string& name, const std::string& content);
 bool deleteFile(const std::string& name);
 
 std::array<char, HASH_LENGTH> convertHash(const std::string& hash);
+
+std::string print(std::array<char, HASH_LENGTH> hash);

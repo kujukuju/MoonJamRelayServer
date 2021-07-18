@@ -17,4 +17,7 @@ public:
 private:
     std::mutex m_roomMutex;
     std::unordered_map<std::array<char, HASH_LENGTH>, std::thread> m_roomThreads;
+
+    std::mutex m_completedMutex;
+    std::vector<std::array<char, HASH_LENGTH>> m_completedThreads;
 };
