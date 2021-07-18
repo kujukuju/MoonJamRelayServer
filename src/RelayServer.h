@@ -14,7 +14,9 @@ public:
 
     void run();
 
-    void close(connection_hdl&& handle, websocketpp::close::status::value status, const char* reason);
+    static void close(connection_hdl&& handle, websocketpp::close::status::value status, const char* reason);
+
+    static void send(connection_hdl& handle, uint8_t* data, size_t size);
 
 private:
     void onOpen(connection_hdl&& handle);

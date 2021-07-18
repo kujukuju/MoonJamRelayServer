@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include <array>
 #include <mutex>
+#include <websocketpp/server.hpp>
+
+using websocketpp::connection_hdl;
 
 static const int MAX_PACKET_SIZE = 16384;
 
@@ -22,16 +25,25 @@ public:
 
     bool hasRoom(std::array<char, HASH_LENGTH> room);
 
-    void addPacket(std::array<char, HASH_LENGTH> room, ReceivedPacket packet);
+    void addPacket(std::array<char, HASH_LENGTH> room, ReceivedPacket packet, connection_hdl&& handle);
+
+    void removeConnection(connection_hdl&& handle);
 
     void createRoom(std::array<char, HASH_LENGTH> room);
 
     void destroyRoom(std::array<char, HASH_LENGTH> room);
 
+    void getConnections(std::vector<connection_hdl>& connections, std::array<char, HASH_LENGTH> room);
+
+    void getPackets(std::vector<ReceivedPacket>& packets, std::array<char, HASH_LENGTH> room);
+
 private:
     // indexed by moons key
     std::mutex m_packetMutex;
     std::unordered_map<std::array<char, HASH_LENGTH>, std::vector<ReceivedPacket>> m_packets;
+
+    std::mutex m_handleMutex;
+    std::unordered_map<std::array<char, HASH_LENGTH>, std::vector<connection_hdl>> m_handles;
 
     RoomManager& m_roomManager;
 };

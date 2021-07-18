@@ -38,6 +38,19 @@ void RelayServer::close(connection_hdl&& handle, websocketpp::close::status::val
     connection.close(status, reason);
 }
 
+void RelayServer::send(connection_hdl& handle, uint8_t* data, size_t size) {
+    if (handle.expired()) {
+        return;
+    }
+
+    server::connection_type& connection = *(server::connection_type*) handle.lock().get();
+    if (connection.get_state() != websocketpp::session::state::open) {
+        return;
+    }
+
+    connection.send(data, size, websocketpp::frame::opcode::value::BINARY);
+}
+
 void RelayServer::onOpen(connection_hdl&& handle) {
     connection_hdl* handlePointer = (connection_hdl*) handle.lock().get();
 
@@ -55,6 +68,8 @@ void RelayServer::onClose(connection_hdl&& handle) {
             m_packetAccumulator.destroyRoom(room);
         }
     }
+
+    m_packetAccumulator.removeConnection(std::move(handle));
 
     releaseIdentifier(handlePointer);
 }
@@ -117,7 +132,7 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
             bytes,
             length,
     };
-    m_packetAccumulator.addPacket(room, receivedPacket);
+    m_packetAccumulator.addPacket(room, receivedPacket, std::move(handle));
 }
 
 uint16_t RelayServer::getIdentifier(connection_hdl* handlePointer) {
@@ -152,7 +167,6 @@ uint16_t RelayServer::claimIdentifier(connection_hdl* handlePointer) {
 
     return identifier;
 }
-
 
 void RelayServer::releaseIdentifier(connection_hdl* handlePointer) {
     const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
