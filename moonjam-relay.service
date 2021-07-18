@@ -1,0 +1,14 @@
+[Unit]
+Description=MoonJam Relay Server
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/home/moonjam/MoonJamRelayServer/build
+ExecStart=/home/moonjam/MoonJamRelayServer/build/MoonJamRelayServer
+
+[Install]
+WantedBy=multi-user.target
+
