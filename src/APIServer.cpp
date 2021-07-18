@@ -1,11 +1,13 @@
 #include "APIServer.h"
 
 #include "Helpers.h"
+#include "KeyManager.h"
 
 #include <filesystem>
 
-APIServer::APIServer(uint32_t port, const std::string& secret)
-        : m_port(port) {
+APIServer::APIServer(uint32_t port, const std::string& secret, KeyManager& keyManager)
+        : m_port(port),
+          m_keyManager(keyManager) {
     m_server.Post("/create", [this, &secret](const httplib::Request& request, httplib::Response& response) {
         if (!request.files.contains("key") || !request.files.contains("id")) {
             std::cerr << "Requested new keys without the proper data..." << std::endl;
@@ -23,7 +25,7 @@ APIServer::APIServer(uint32_t port, const std::string& secret)
         const std::string& id = request.files.find("id")->second.content;
 
         // refresh keys before it all starts to avoid duplicates
-        refreshKeys();
+        m_keyManager.refreshKeys();
 
         // create the new key
         int playerAttempts = 0;
@@ -37,7 +39,7 @@ APIServer::APIServer(uint32_t port, const std::string& secret)
                 response.status = 500;
                 return;
             }
-        } while (hasKey(convertHash(playerHash)));
+        } while (m_keyManager.hasKey(convertHash(playerHash)));
 
         int moonAttempts = 0;
         std::string moonHash;
@@ -50,13 +52,13 @@ APIServer::APIServer(uint32_t port, const std::string& secret)
                 response.status = 500;
                 return;
             }
-        } while (hasKey(convertHash(moonHash)) || moonHash == playerHash);
+        } while (m_keyManager.hasKey(convertHash(moonHash)) || moonHash == playerHash);
 
         // write the files and fill the content with the corresponding hash
         writeFile("../keys/" + id + ".txt", moonHash + " " + playerHash);
 
         // refresh keys after the files are written to get them, not efficient but who cares
-        refreshKeys();
+        m_keyManager.refreshKeys();
 
         std::cout << "Created key pair for user " << id << "." << std::endl;
 
@@ -106,48 +108,3 @@ APIServer::APIServer(uint32_t port, const std::string& secret)
 void APIServer::run() {
     m_server.listen("0.0.0.0", m_port);
 }
-
-void APIServer::refreshKeys() {
-    std::vector<AccessKeys> keys(m_keys.size());
-
-    for (const auto& entry : std::filesystem::directory_iterator("../keys")) {
-        std::string filename = entry.path().string();
-        std::string contents = readFile(filename);
-        if (contents.length() != HASH_LENGTH * 2 + 1) {
-            std::cerr << "Reading hash file with incorrect contents... " << filename << std::endl;
-            continue;
-        }
-
-        char* contentCharacters = contents.data();
-        std::array<char, HASH_LENGTH> moonKey {};
-        std::array<char, HASH_LENGTH> playerKey {};
-        for (int i = 0; i < HASH_LENGTH; i++) {
-            moonKey[i] = contentCharacters[i];
-            playerKey[i] = contentCharacters[i + HASH_LENGTH + 1];
-        }
-
-        keys.emplace_back(AccessKeys {
-            moonKey,
-            playerKey
-        });
-    }
-
-    const std::lock_guard<std::mutex> keyLock(m_keyMutex);
-    m_keys.swap(keys);
-}
-
-bool APIServer::hasKey(std::array<char, HASH_LENGTH> key) {
-    const std::lock_guard<std::mutex> keyLock(m_keyMutex);
-
-    for (auto& keys : m_keys) {
-        if (keys.moonKey == key) {
-            return true;
-        }
-
-        if (keys.playerKey == key) {
-            return true;
-        }
-    }
-
-    return false;
-};

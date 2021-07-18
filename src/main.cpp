@@ -2,15 +2,24 @@
 #include "WebsocketServer.h"
 #include "RelayServer.h"
 #include "APIServer.h"
+#include "KeyManager.h"
+#include "PacketAccumulator.h"
+#include "RoomManager.h"
 
 #include <thread>
 #include <iostream>
 
+static_assert(sizeof(char) == 1, "Character size must be 1 byte.");
+
 int main() {
     const std::string secret = readFile("../secretkey.txt");
 
-    std::thread apiServer = std::thread([&secret] {
-        APIServer server(58006, secret);
+    KeyManager keyManager;
+    RoomManager roomManager;
+    PacketAccumulator packetAccumulator(roomManager);
+
+    std::thread apiServer = std::thread([&secret, &keyManager] {
+        APIServer server(58006, secret, keyManager);
         server.run();
 
         std::cerr << "API thread has exited on port 58006. This is bad. Restarting the server..." << std::endl;
@@ -33,8 +42,8 @@ int main() {
         exit(1);
     });
 
-    std::thread relayThread = std::thread([] {
-        RelayServer server(58008);
+    std::thread relayThread = std::thread([&keyManager, &packetAccumulator] {
+        RelayServer server(58008, keyManager, packetAccumulator);
         server.run();
 
         std::cerr << "Relay thread has exited on port 58008. This is bad. Restarting the server..." << std::endl;

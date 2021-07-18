@@ -1,4 +1,8 @@
 ## Installation
 
+* for faster editing you can add `-DCMAKE_BUILD_TYPE=RelWithDebInfo -G Ninja` to your cmake options
 * create `secretkey.txt` in the root project folder, and put your secret key in there
-* for windows you may need to add `-DCMAKE_BUILD_TYPE=RelWithDebInfo -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:/Users/Kuju/vcpkg/scripts/buildsystems/vcpkg.cmake` to your cmake options
+
+## Notes
+
+* To connect to a room you must send at least one message. So sending an initial message with just your key might be desirable.
