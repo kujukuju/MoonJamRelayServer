@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cstdio>
 #include <iostream>
+#include <cstring>
 
 std::string randomString(int length) {
     static auto& characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
