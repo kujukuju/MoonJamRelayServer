@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <mutex>
+#include <semaphore>
 
 class RelayThread {
 public:
@@ -18,8 +19,8 @@ private:
     std::function<void()> m_done;
     std::thread m_thread;
 
-    std::mutex m_threadLock;
-    std::mutex m_runningLock;
+    std::binary_semaphore m_threadLock;
+    std::binary_semaphore m_runningLock;
 
     bool m_exit = false;
 };

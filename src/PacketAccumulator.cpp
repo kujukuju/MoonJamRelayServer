@@ -25,25 +25,30 @@ void PacketAccumulator::addPacket(std::array<char, HASH_LENGTH> room, ReceivedPa
         roomPackets.emplace_back(packet);
     }
 
+    uint16_t identifier = packet.identifier;
+
     const std::lock_guard<std::mutex> handleLock(m_handleMutex);
-    std::vector<connection_hdl>& roomHandles = m_handles[room];
-    auto it = std::find_if(roomHandles.begin(), roomHandles.end(), [&handle](const auto& entry) {
-        return handle.lock().get() == entry.lock().get();
+    std::vector<ReceivedConnection>& roomHandles = m_handles[room];
+    auto it = std::find_if(roomHandles.begin(), roomHandles.end(), [identifier](const auto& entry) {
+        return identifier == entry.identifier;
     });
 
     if (it == roomHandles.end()) {
-        roomHandles.emplace_back(handle);
+        roomHandles.emplace_back(ReceivedConnection {
+            identifier,
+            handle,
+        });
     }
 }
 
-void PacketAccumulator::removeConnection(connection_hdl&& handle) {
+void PacketAccumulator::removeConnection(uint16_t identifier) {
     const std::lock_guard<std::mutex> handleLock(m_handleMutex);
 
     // technically you could be connected to more than one room, so we check all
     // later we can optimize this using another map going the opposite direction
     for (auto& room : m_handles) {
-        auto it = std::find_if(room.second.begin(), room.second.end(), [&handle](const auto& entry) {
-            return handle.lock().get() == entry.lock().get();
+        auto it = std::find_if(room.second.begin(), room.second.end(), [identifier](const auto& entry) {
+            return identifier == entry.identifier;
         });
 
         if (it != room.second.end()) {
@@ -64,7 +69,7 @@ void PacketAccumulator::createRoom(std::array<char, HASH_LENGTH> room) {
 
     {
         const std::lock_guard<std::mutex> handleLock(m_handleMutex);
-        m_handles[room] = std::vector<connection_hdl>();
+        m_handles[room] = std::vector<ReceivedConnection>();
     }
 
     m_roomManager.createRoom(*this, room);
@@ -84,7 +89,7 @@ void PacketAccumulator::destroyRoom(std::array<char, HASH_LENGTH> room) {
     m_handles.erase(room);
 }
 
-void PacketAccumulator::getConnections(std::vector<connection_hdl>& connections, std::array<char, HASH_LENGTH> room) {
+void PacketAccumulator::getConnections(std::vector<ReceivedConnection>& connections, std::array<char, HASH_LENGTH> room) {
     connections.clear();
 
     const std::lock_guard<std::mutex> handleLock(m_handleMutex);
@@ -93,7 +98,7 @@ void PacketAccumulator::getConnections(std::vector<connection_hdl>& connections,
         return;
     }
 
-    std::vector<connection_hdl>& existing = m_handles[room];
+    std::vector<ReceivedConnection>& existing = m_handles[room];
     connections.reserve(existing.size());
     std::copy(existing.begin(), existing.end(), std::back_inserter(connections));
 }

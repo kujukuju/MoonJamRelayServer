@@ -70,7 +70,7 @@ void RelayServer::onClose(connection_hdl&& handle) {
         }
     }
 
-    m_packetAccumulator.removeConnection(std::move(handle));
+    m_packetAccumulator.removeConnection(identifier);
 
     releaseIdentifier(handlePointer);
 }

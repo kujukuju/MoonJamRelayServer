@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Helpers.h"
+#include "RelayThreadPool.h"
 
 #include <unordered_map>
 #include <thread>
@@ -21,4 +22,6 @@ private:
 
     std::mutex m_completedMutex;
     std::vector<std::array<char, HASH_LENGTH>> m_completedThreads;
+
+    RelayThreadPool m_threadPool;
 };

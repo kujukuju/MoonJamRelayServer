@@ -2,11 +2,8 @@
 
 #include "PacketAccumulator.h"
 #include "RelayServer.h"
-#include "RelayThreadPool.h"
 
 static const long long TICKRATE = 30;
-
-static RelayThreadPool THREAD_POOL;
 
 void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<char, HASH_LENGTH> room) {
     const std::lock_guard<std::mutex> roomLock(m_roomMutex);
@@ -26,9 +23,8 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
     }
 
     m_roomThreads[room] = std::thread([this, &packetAccumulator, room] {
-        std::vector<connection_hdl> connections;
+        std::vector<ReceivedConnection> connections;
         std::vector<ReceivedPacket> packets;
-        std::vector<uint8_t> bytes;
         std::vector<RelayThreadController> controllers;
 
         while (packetAccumulator.hasRoom(room)) {
@@ -42,23 +38,26 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
                 packetAccumulator.getConnections(connections, room);
 
                 controllers.clear();
-                controllers.emplace_back(THREAD_POOL.run([&packets]() {
-                    int byteCount = 0;
-                    for (auto& packet : packets) {
-                        byteCount += packet.length;
-                    }
-                    bytes.resize(byteCount);
+                for (auto& connection : connections) {
+                    controllers.emplace_back(m_threadPool.run([&connection, &packets]() {
+                        std::vector<uint8_t> bytes;
+                        int byteCount = 0;
+                        for (auto& packet : packets) {
+                            if (packet.identifier != connection.identifier) {
+                                byteCount += packet.length;
+                            }
+                        }
+                        bytes.resize(byteCount);
 
-                    int currentIndex = 0;
-                    for (auto &packet : packets) {
-                        std::memcpy(bytes.data() + currentIndex, packet.bytes.data(), packet.length);
-                        currentIndex += packet.length;
-                    }
+                        int currentIndex = 0;
+                        for (auto &packet : packets) {
+                            std::memcpy(bytes.data() + currentIndex, packet.bytes.data(), packet.length);
+                            currentIndex += packet.length;
+                        }
 
-                    for (auto &connection : connections) {
-                        RelayServer::send(connection, bytes.data(), bytes.size());
-                    }
-                }));
+                        RelayServer::send(connection.handle, bytes.data(), bytes.size());
+                    }));
+                }
 
                 for (RelayThreadController& controller : controllers) {
                     controller.join();

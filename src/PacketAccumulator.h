@@ -17,6 +17,11 @@ struct ReceivedPacket {
     uint16_t length;
 };
 
+struct ReceivedConnection {
+    uint16_t identifier;
+    connection_hdl handle;
+};
+
 class RoomManager;
 
 class PacketAccumulator {
@@ -27,13 +32,13 @@ public:
 
     void addPacket(std::array<char, HASH_LENGTH> room, ReceivedPacket packet, connection_hdl&& handle);
 
-    void removeConnection(connection_hdl&& handle);
+    void removeConnection(uint16_t identifier);
 
     void createRoom(std::array<char, HASH_LENGTH> room);
 
     void destroyRoom(std::array<char, HASH_LENGTH> room);
 
-    void getConnections(std::vector<connection_hdl>& connections, std::array<char, HASH_LENGTH> room);
+    void getConnections(std::vector<ReceivedConnection>& connections, std::array<char, HASH_LENGTH> room);
 
     void getPackets(std::vector<ReceivedPacket>& packets, std::array<char, HASH_LENGTH> room);
 
@@ -43,7 +48,7 @@ private:
     std::unordered_map<std::array<char, HASH_LENGTH>, std::vector<ReceivedPacket>> m_packets;
 
     std::mutex m_handleMutex;
-    std::unordered_map<std::array<char, HASH_LENGTH>, std::vector<connection_hdl>> m_handles;
+    std::unordered_map<std::array<char, HASH_LENGTH>, std::vector<ReceivedConnection>> m_handles;
 
     RoomManager& m_roomManager;
 };

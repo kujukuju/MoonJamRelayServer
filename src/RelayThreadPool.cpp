@@ -11,9 +11,9 @@ RelayThreadController RelayThreadPool::run(std::function<void()>&& function) {
     for (RelayThread& thread : m_threads) {
         if (thread.lock()) {
             controller.valid = true;
-            controller.mutex->lock();
-            thread.run(std::move(function), [this, &controller]() {
-                controller.mutex->unlock();
+            controller.mutex->acquire();
+            thread.run(std::move(function), [this, controller]() {
+                controller.mutex->release();
                 processQueue();
             });
 
