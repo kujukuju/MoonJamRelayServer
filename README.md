@@ -23,12 +23,18 @@
     * `mkdir keys`
     * `vim secretkey.txt`
     * `chmod +x deploy.sh`
+    * `chmod +x restart.sh`
 * as root
     * `ln -s /home/moonjam/MoonJamRelayServer/moonjam-relay.service /etc/systemd/system/moonjam-relay.service`
     * `systemctl daemon-reload`
     * `systemctl enable moonjam-relay`
     * `ln -s /home/moonjam/MoonJamRelayServer/relay.veraegames.com /etc/nginx/sites-enabled/relay.veraegames.com`
     * `systemctl reload nginx`
+    * optionally just copy the exe over... I ran out of memory so thats what I did
+* as moonjam
+    * `./deploy.sh`
+* as root
+    * `chmod +x build/MoonJamRelayServer`
 ## Notes
 
 * To connect to a room you must send at least one message. So sending an initial message with just your key might be desirable.

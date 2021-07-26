@@ -2,8 +2,11 @@
 
 #include "PacketAccumulator.h"
 #include "RelayServer.h"
+#include "RelayThreadPool.h"
 
 static const long long TICKRATE = 30;
+
+static RelayThreadPool THREAD_POOL;
 
 void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<char, HASH_LENGTH> room) {
     const std::lock_guard<std::mutex> roomLock(m_roomMutex);
@@ -26,6 +29,7 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
         std::vector<connection_hdl> connections;
         std::vector<ReceivedPacket> packets;
         std::vector<uint8_t> bytes;
+        std::vector<RelayThreadController> controllers;
 
         while (packetAccumulator.hasRoom(room)) {
             auto startTime = std::chrono::high_resolution_clock::now();
@@ -37,20 +41,27 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
             if (!packets.empty()) {
                 packetAccumulator.getConnections(connections, room);
 
-                int byteCount = 0;
-                for (auto &packet : packets) {
-                    byteCount += packet.length;
-                }
-                bytes.resize(byteCount);
+                controllers.clear();
+                controllers.emplace_back(THREAD_POOL.run([&packets]() {
+                    int byteCount = 0;
+                    for (auto& packet : packets) {
+                        byteCount += packet.length;
+                    }
+                    bytes.resize(byteCount);
 
-                int currentIndex = 0;
-                for (auto &packet : packets) {
-                    std::memcpy(bytes.data() + currentIndex, packet.bytes.data(), packet.length);
-                    currentIndex += packet.length;
-                }
+                    int currentIndex = 0;
+                    for (auto &packet : packets) {
+                        std::memcpy(bytes.data() + currentIndex, packet.bytes.data(), packet.length);
+                        currentIndex += packet.length;
+                    }
 
-                for (auto &connection : connections) {
-                    RelayServer::send(connection, bytes.data(), bytes.size());
+                    for (auto &connection : connections) {
+                        RelayServer::send(connection, bytes.data(), bytes.size());
+                    }
+                }));
+
+                for (RelayThreadController& controller : controllers) {
+                    controller.join();
                 }
             }
 

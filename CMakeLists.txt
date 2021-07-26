@@ -24,6 +24,8 @@ add_executable(MoonJamRelayServer
         src/KeyManager.cpp
         src/PacketAccumulator.cpp
         src/RelayServer.cpp
+        src/RelayThread.cpp
+        src/RelayThreadPool.cpp
         src/RoomManager.cpp
         src/WebsocketServer.cpp)
 
