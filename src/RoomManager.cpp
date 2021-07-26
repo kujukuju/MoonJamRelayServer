@@ -43,14 +43,20 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
                         std::vector<uint8_t> bytes;
                         int byteCount = 0;
                         for (auto& packet : packets) {
-                            if (packet.identifier != connection.identifier) {
-                                byteCount += packet.length;
+                            if (packet.identifier == connection.identifier) {
+                                continue;
                             }
+
+                            byteCount += packet.length;
                         }
                         bytes.resize(byteCount);
 
                         int currentIndex = 0;
-                        for (auto &packet : packets) {
+                        for (auto& packet : packets) {
+                            if (packet.identifier == connection.identifier) {
+                                continue;
+                            }
+
                             std::memcpy(bytes.data() + currentIndex, packet.bytes.data(), packet.length);
                             currentIndex += packet.length;
                         }
