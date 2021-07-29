@@ -65,8 +65,22 @@ void RelayServer::onClose(connection_hdl&& handle) {
         const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
         if (m_moonIdentifierToRoomMap.contains(identifier)) {
             std::array<char, HASH_LENGTH> room = m_moonIdentifierToRoomMap[identifier];
-            m_packetAccumulator.destroyRoom(room);
-            std::cout << "Destroying room " << print(room) << std::endl;
+            m_moonIdentifierToRoomMap.erase(identifier);
+
+            bool remainingMoons = false;
+            for (auto& otherMoon : m_moonIdentifierToRoomMap) {
+                std::array<char, HASH_LENGTH> otherRoom = otherMoon.second;
+                if (otherRoom == room) {
+                    remainingMoons = true;
+                    break;
+                }
+            }
+            if (!remainingMoons) {
+                m_packetAccumulator.destroyRoom(room);
+                std::cout << "Destroying room " << print(room) << std::endl;
+            } else {
+                std::cout << "Not destroying room " << print(room) << "... Other moon clients remain." << std::endl;
+            }
         }
     }
 
@@ -102,19 +116,24 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
         return;
     }
 
+    // add a moon client, we allow for multiple moon clients
+    if (room == hash) {
+        const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
+        m_moonIdentifierToRoomMap[identifier] = room;
+    }
+
     // this checks that the room exists, which would be a result of moons client being connected
     if (!m_packetAccumulator.hasRoom(room)) {
         // if this client is moon, create the room
         if (room == hash) {
-            const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
+            // const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
 
-            if (m_moonIdentifierToRoomMap.contains(identifier)) {
-                std::cout << "Destroying existing room. " << print(room) << std::endl;
-                m_packetAccumulator.destroyRoom(room);
-            }
+            // if (m_moonIdentifierToRoomMap.contains(identifier)) {
+            //     std::cout << "Destroying existing room. " << print(room) << std::endl;
+            //     m_packetAccumulator.destroyRoom(room);
+            // }
 
             std::cout << "Creating new room. " << print(room) << std::endl;
-            m_moonIdentifierToRoomMap[identifier] = room;
             m_packetAccumulator.createRoom(room);
         } else {
             std::cout << "Closing connection because the specified room doesn't exist." << print(room) << std::endl;
