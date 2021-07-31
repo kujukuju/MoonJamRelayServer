@@ -51,13 +51,6 @@ int main() {
         exit(1);
     });
 
-    unsigned int cores = std::thread::hardware_concurrency();
-    std::vector<std::thread> threads(cores);
-    for (int i = 0; i < cores; i++) {
-        threads.emplace_back([] {
-        });
-    }
-
     std::promise<void>().get_future().wait();
 
     return 0;

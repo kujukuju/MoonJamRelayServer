@@ -58,33 +58,33 @@ namespace log {
 template <typename concurrency, typename names>
 class basic {
 public:
-    basic(channel_type_hint::value h =
+    basic<concurrency,names>(channel_type_hint::value h =
         channel_type_hint::access)
       : m_static_channels(0xffffffff)
       , m_dynamic_channels(0)
       , m_out(h == channel_type_hint::error ? &std::cerr : &std::cout) {}
 
-    basic(std::ostream * out)
+    basic<concurrency,names>(std::ostream * out)
       : m_static_channels(0xffffffff)
       , m_dynamic_channels(0)
       , m_out(out) {}
 
-    basic(level c, channel_type_hint::value h =
+    basic<concurrency,names>(level c, channel_type_hint::value h =
         channel_type_hint::access)
       : m_static_channels(c)
       , m_dynamic_channels(0)
       , m_out(h == channel_type_hint::error ? &std::cerr : &std::cout) {}
 
-    basic(level c, std::ostream * out)
+    basic<concurrency,names>(level c, std::ostream * out)
       : m_static_channels(c)
       , m_dynamic_channels(0)
       , m_out(out) {}
 
     /// Destructor
-    ~basic() {}
+    ~basic<concurrency,names>() {}
 
     /// Copy constructor
-    basic(basic<concurrency,names> const & other)
+    basic<concurrency,names>(basic<concurrency,names> const & other)
      : m_static_channels(other.m_static_channels)
      , m_dynamic_channels(other.m_dynamic_channels)
      , m_out(other.m_out)
@@ -97,7 +97,7 @@ public:
 
 #ifdef _WEBSOCKETPP_MOVE_SEMANTICS_
     /// Move constructor
-    basic(basic<concurrency,names> && other)
+    basic<concurrency,names>(basic<concurrency,names> && other)
      : m_static_channels(other.m_static_channels)
      , m_dynamic_channels(other.m_dynamic_channels)
      , m_out(other.m_out)

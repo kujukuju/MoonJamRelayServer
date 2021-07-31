@@ -417,13 +417,12 @@ public:
      * @todo Does this method need any validation?
      *
      * @param [in] version The value to set the HTTP version to.
-     * @return A status code describing the outcome of the operation.
      */
-    lib::error_code set_version(std::string const & version);
+    void set_version(std::string const & version);
 
     /// Get the value of an HTTP header
     /**
-     * Note: per HTTP specs header values are compared case insensitively.
+     * @todo Make this method case insensitive.
      *
      * @param [in] key The name/key of the header to get.
      * @return The value associated with the given HTTP header key.
@@ -458,19 +457,16 @@ public:
      * indicated value. If a header with the name `key` already exists, `val`
      * will be appended to the existing value.
      *
-     * Note: per HTTP specs header values are compared case insensitively.
-     * 
+     * @todo Make this method case insensitive.
      * @todo Should there be any restrictions on which keys are allowed?
+     * @todo Exception free varient
      *
      * @see replace_header
      *
-     * @since 0.9.0 (return value added, exceptions removed)
-     * 
      * @param [in] key The name/key of the header to append to.
      * @param [in] val The value to append.
-     * @return A status code describing the outcome of the operation.
      */
-    lib::error_code append_header(std::string const & key, std::string const & val);
+    void append_header(std::string const & key, std::string const & val);
 
     /// Set a value for an HTTP header, replacing an existing value
     /**
@@ -478,33 +474,27 @@ public:
      * indicated value. If a header with the name `key` already exists, `val`
      * will replace the existing value.
      *
-     * Note: per HTTP specs header values are compared case insensitively.
+     * @todo Make this method case insensitive.
+     * @todo Should there be any restrictions on which keys are allowed?
+     * @todo Exception free varient
      *
      * @see append_header
      *
-     * @since 0.9.0 (return value added)
-     * 
      * @param [in] key The name/key of the header to append to.
      * @param [in] val The value to append.
-     * @return A status code describing the outcome of the operation.
      */
-    lib::error_code replace_header(std::string const & key, std::string const & val);
+    void replace_header(std::string const & key, std::string const & val);
 
     /// Remove a header from the parser
     /**
      * Removes the header entirely from the parser. This is different than
      * setting the value of the header to blank.
      *
-     * Note: per HTTP specs header values are compared case insensitively.
+     * @todo Make this method case insensitive.
      *
-     * @since 0.9.0 (return value added)
-     * 
      * @param [in] key The name/key of the header to remove.
-     * @return A status code describing the outcome of the operation.
      */
-    lib::error_code remove_header(std::string const & key);
-
-    // todo exception varients for the above 3?
+    void remove_header(std::string const & key);
 
     /// Get HTTP body
     /**
@@ -523,12 +513,9 @@ public:
      * value. If you want the Content-Length header to be something else, do so
      * via replace_header("Content-Length") after calling set_body()
      *
-     * @since 0.9.0 (return value added)
-     * 
      * @param value String data to include as the body content.
-     * @return A status code describing the outcome of the operation.
      */
-    lib::error_code set_body(std::string const & value);
+    void set_body(std::string const & value);
 
     /// Get body size limit
     /**
@@ -567,14 +554,12 @@ public:
 protected:
     /// Process a header line
     /**
-     * @since 0.9.0 (return value added, exceptions removed)
-     * 
+     * @todo Update this method to be exception free.
+     *
      * @param [in] begin An iterator to the beginning of the sequence.
      * @param [in] end An iterator to the end of the sequence.
-     * @return A status code describing the outcome of the operation.
      */
-    lib::error_code process_header(std::string::iterator begin,
-        std::string::iterator end);
+    void process_header(std::string::iterator begin, std::string::iterator end);
 
     /// Prepare the parser to begin parsing body data
     /**
@@ -585,27 +570,23 @@ protected:
      *
      * Must not be called until after all headers have been processed.
      *
-     * @since 0.5.0 (no parameters)
-     * @since 0.9.0 (ec parameter added, exceptions removed)
+     * @since 0.5.0
      *
-     * @param [out] ec A status code describing the outcome of the operation.
      * @return True if more bytes are needed to load the body, false otherwise.
      */
-    bool prepare_body(lib::error_code & ec);
+    bool prepare_body();
 
     /// Process body data
     /**
      * Parses body data.
      *
      * @since 0.5.0
-     * @since 0.9.0 (ec parameter added, exceptions removed)
      *
      * @param [in] begin An iterator to the beginning of the sequence.
      * @param [in] end An iterator to the end of the sequence.
-     * @param [out] ec A status code describing the outcome of the operation.
      * @return The number of bytes processed
      */
-    size_t process_body(char const * buf, size_t len, lib::error_code & ec);
+    size_t process_body(char const * buf, size_t len);
 
     /// Check if the parser is done parsing the body
     /**

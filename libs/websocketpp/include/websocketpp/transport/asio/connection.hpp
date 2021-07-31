@@ -194,14 +194,12 @@ public:
         ec = lib::error_code();
     }
 
-#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
     /// Set the proxy to connect through (exception)
     void set_proxy(std::string const & uri) {
         lib::error_code ec;
         set_proxy(uri,ec);
         if (ec) { throw exception(ec); }
     }
-#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
     /// Set the basic auth credentials to use (exception free)
     /**
@@ -230,7 +228,6 @@ public:
         ec = lib::error_code();
     }
 
-#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
     /// Set the basic auth credentials to use (exception)
     void set_proxy_basic_auth(std::string const & username, std::string const &
         password)
@@ -239,7 +236,6 @@ public:
         set_proxy_basic_auth(username,password,ec);
         if (ec) { throw exception(ec); }
     }
-#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
     /// Set the proxy timeout duration (exception free)
     /**
@@ -261,14 +257,12 @@ public:
         ec = lib::error_code();
     }
 
-#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
     /// Set the proxy timeout duration (exception)
     void set_proxy_timeout(long duration) {
         lib::error_code ec;
         set_proxy_timeout(duration,ec);
         if (ec) { throw exception(ec); }
     }
-#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
     std::string const & get_proxy() const {
         return m_proxy;
@@ -709,6 +703,7 @@ protected:
         if (!m_proxy_data) {
             m_elog->write(log::elevel::library,
                 "assertion failed: !m_proxy_data in asio::connection::proxy_read");
+            m_proxy_data->timer->cancel();
             callback(make_error_code(error::general));
             return;
         }
@@ -777,19 +772,9 @@ protected:
                 return;
             }
 
-            // todo: switch this to using non-istream based consume
             std::istream input(&m_proxy_data->read_buf);
 
-            lib::error_code istream_ec;
-            m_proxy_data->res.consume(input, istream_ec);
-            if (istream_ec) {
-                // there was an error while reading from the proxy
-                m_elog->write(log::elevel::info,
-                    "An HTTP handling error occurred while reading a response from the proxy server: "+istream_ec.message());
-                // todo: do we need to translate this error?
-                callback(istream_ec);
-                return;
-            }
+            m_proxy_data->res.consume(input);
 
             if (!m_proxy_data->res.headers_ready()) {
                 // we read until the headers were done in theory but apparently
@@ -953,9 +938,6 @@ protected:
     /// Initiate a potentially asyncronous write of the given buffers
     void async_write(std::vector<buffer> const & bufs, write_handler handler) {
         std::vector<buffer>::const_iterator it;
-
-        // todo: check if this underlying socket supports efficient scatter/gather io
-        // if not, coalesce buffers before we send to the underlying transport.
 
         for (it = bufs.begin(); it != bufs.end(); ++it) {
             m_bufs.push_back(lib::asio::buffer((*it).buf,(*it).len));
