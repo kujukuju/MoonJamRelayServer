@@ -28,18 +28,17 @@ std::string randomString(int length) {
 }
 
 bool fileExists(const std::string& path) {
-	std::ifstream stream(path);
-	return stream.good();
+	return fs::exists(path);
 }
 
 void readFile(std::string& content, const std::string& path) {
-    std::ifstream stream(path);
-    std::stringstream buffer;
-    buffer << stream.rdbuf();
-    content = std::move(buffer.str());
-    stream.close();
-    content.erase(std::remove(content.begin(), content.end(), '\r'), content.end());
-    content.erase(std::remove(content.begin(), content.end(), '\n'), content.end());
+	std::ifstream stream(path);
+	std::stringstream buffer;
+	buffer << stream.rdbuf();
+	content = std::move(buffer.str());
+	stream.close();
+	content.erase(std::remove(content.begin(), content.end(), '\r'), content.end());
+	content.erase(std::remove(content.begin(), content.end(), '\n'), content.end());
 }
 
 void writeFile(const std::string& name, const std::string& content) {
@@ -66,9 +65,8 @@ std::array<char, HASH_LENGTH> convertHash(const std::string& hash) {
 	}
 
 	std::array<char, HASH_LENGTH> value {};
-	const char* characters = hash.data();
 	for (int i = 0; i < HASH_LENGTH; i++) {
-		value[i] = characters[i];
+		value[i] = hash[i];
 	}
 
 	return value;
