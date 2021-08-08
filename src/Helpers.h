@@ -26,7 +26,7 @@ std::string randomString(int length);
 
 bool fileExists(const std::string& path);
 
-std::string readFile(const std::string& path);
+void readFile(const std::string& path, std::string& contents);
 
 void writeFile(const std::string& name, const std::string& content);
 

@@ -12,7 +12,9 @@
 static_assert(sizeof(char) == 1, "Character size must be 1 byte.");
 
 int main() {
-    const std::string secret = readFile("../secretkey.txt");
+    std::string contents;
+    readFile("../secretkey.txt", contents);
+    const std::string secret = contents;
 
     KeyManager keyManager;
     RoomManager roomManager;
