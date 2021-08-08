@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cstring>
 #include <filesystem>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 
@@ -31,14 +32,14 @@ bool fileExists(const std::string& path) {
 	return stream.good();
 }
 
-void readFile(const std::string& path, std::string& contents) {
-	std::ifstream file(path);
-	const uintmax_t fileSize = fs::file_size(path);
-	contents.reserve(static_cast<size_t>(fileSize));
-	contents.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	contents.erase(std::remove(contents.begin(), contents.end(), '\r'), contents.end());
-	contents.erase(std::remove(contents.begin(), contents.end(), '\n'), contents.end());
-	file.close();
+void readFile(std::string& content, const std::string& path) {
+    std::ifstream stream(path);
+    std::stringstream buffer;
+    buffer << stream.rdbuf();
+    content = std::move(buffer.str());
+    stream.close();
+    content.erase(std::remove(content.begin(), content.end(), '\r'), content.end());
+    content.erase(std::remove(content.begin(), content.end(), '\n'), content.end());
 }
 
 void writeFile(const std::string& name, const std::string& content) {

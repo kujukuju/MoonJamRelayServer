@@ -9,7 +9,7 @@ APIServer::APIServer(uint32_t port, const std::string& secret, KeyManager& keyMa
         : m_port(port),
           m_keyManager(keyManager) {
     m_server.Post("/create", [this, &secret](const httplib::Request& request, httplib::Response& response) {
-        if (!request.files.contains("key") || !request.files.contains("id")) {
+        if (!contains(request.files, "key") || !contains(request.files, "id")) {
             std::cerr << "Requested new keys without the proper data..." << std::endl;
             response.status = 511;
             return;
@@ -67,7 +67,7 @@ APIServer::APIServer(uint32_t port, const std::string& secret, KeyManager& keyMa
     });
 
     m_server.Post("/delete", [&secret](const httplib::Request& request, httplib::Response& response) {
-        if (!request.files.contains("key") || !request.files.contains("id")) {
+        if (!contains(request.files, "key") || !contains(request.files, "id")) {
             std::cerr << "Requested to delete keys without the proper data..." << std::endl;
             response.status = 511;
             return;

@@ -11,7 +11,7 @@ static const int THREAD_COUNT = 1024;
 
 struct RelayThreadController {
     bool valid;
-    std::shared_ptr<std::binary_semaphore> mutex = std::make_shared<std::binary_semaphore>(1);
+    std::shared_ptr<Semaphore> mutex = std::make_shared<Semaphore>();
 
     void join() const {
         mutex->acquire();

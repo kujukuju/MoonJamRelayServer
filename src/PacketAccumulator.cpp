@@ -10,14 +10,14 @@ PacketAccumulator::PacketAccumulator(RoomManager &roomManager)
 bool PacketAccumulator::hasRoom(std::array<char, HASH_LENGTH> room) {
     const std::lock_guard<std::mutex> packetLock(m_packetMutex);
 
-    return m_packets.contains(room);
+    return contains(m_packets, room);
 }
 
 void PacketAccumulator::addPacket(std::array<char, HASH_LENGTH> room, ReceivedPacket packet, connection_hdl&& handle) {
     {
         const std::lock_guard<std::mutex> packetLock(m_packetMutex);
 
-        if (!m_packets.contains(room)) {
+        if (!contains(m_packets, room)) {
             return;
         }
 
@@ -60,7 +60,7 @@ void PacketAccumulator::removeConnection(uint16_t identifier) {
 void PacketAccumulator::createRoom(std::array<char, HASH_LENGTH> room) {
     {
         const std::lock_guard<std::mutex> packetLock(m_packetMutex);
-        if (m_packets.contains(room)) {
+        if (contains(m_packets, room)) {
             return;
         }
 
@@ -78,7 +78,7 @@ void PacketAccumulator::createRoom(std::array<char, HASH_LENGTH> room) {
 void PacketAccumulator::destroyRoom(std::array<char, HASH_LENGTH> room) {
     {
         const std::lock_guard<std::mutex> packetLock(m_packetMutex);
-        if (!m_packets.contains(room)) {
+        if (!contains(m_packets, room)) {
             return;
         }
 
@@ -94,7 +94,7 @@ void PacketAccumulator::getConnections(std::vector<ReceivedConnection>& connecti
 
     const std::lock_guard<std::mutex> handleLock(m_handleMutex);
 
-    if (!m_handles.contains(room)) {
+    if (!contains(m_handles, room)) {
         return;
     }
 
@@ -107,7 +107,7 @@ void PacketAccumulator::getPackets(std::vector<ReceivedPacket>& packets, std::ar
     packets.clear();
 
     const std::lock_guard<std::mutex> packetLock(m_packetMutex);
-    if (!m_packets.contains(room)) {
+    if (!contains(m_packets, room)) {
         return;
     }
 

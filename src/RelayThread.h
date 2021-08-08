@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Semaphore.h"
+
 #include <functional>
 #include <mutex>
-#include <semaphore>
+#include <thread>
 
 class RelayThread {
 public:
@@ -19,8 +21,8 @@ private:
     std::function<void()> m_done;
     std::thread m_thread;
 
-    std::binary_semaphore m_threadLock;
-    std::binary_semaphore m_runningLock;
+    Semaphore m_threadLock;
+    Semaphore m_runningLock;
 
     bool m_exit = false;
 };

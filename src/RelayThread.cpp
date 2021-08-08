@@ -3,9 +3,7 @@
 #include <iostream>
 
 RelayThread::RelayThread()
-        : m_done([]() {}),
-          m_threadLock(1),
-          m_runningLock(1) {
+        : m_done([]() {}) {
     m_threadLock.acquire();
 
     m_thread = std::thread([this] {

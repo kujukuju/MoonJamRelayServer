@@ -1,6 +1,7 @@
 .idea/
 cmake-build-debug/
 cmake-build-relwithdebinfo/
+cmake-build-release/
 build/
 target/
 deploy/
