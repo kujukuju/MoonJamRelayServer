@@ -9,10 +9,10 @@ KeyManager::KeyManager() {
 
 void KeyManager::refreshKeys() {
     std::vector<AccessKeys> keys;
-
+    std::string contents;
     for (const auto& entry : std::filesystem::directory_iterator("../keys")) {
         std::string filename = entry.path().string();
-        std::string contents = readFile(filename);
+        readFile(filename, contents);
         if (contents.length() != HASH_LENGTH * 2 + 1) {
             std::cerr << "Reading hash file with incorrect contents... " << filename << std::endl;
             continue;
@@ -30,6 +30,7 @@ void KeyManager::refreshKeys() {
                 moonKey,
                 playerKey
         });
+        contents.clear();
     }
 
     const std::lock_guard<std::mutex> keyLock(m_keyMutex);
