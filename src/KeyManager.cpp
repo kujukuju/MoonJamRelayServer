@@ -12,13 +12,13 @@ void KeyManager::refreshKeys() {
     std::string contents;
     for (const auto& entry : std::filesystem::directory_iterator("../keys")) {
         std::string filename = entry.path().string();
-        readFile(filename, contents);
+        readFile(contents, filename);
         if (contents.length() != HASH_LENGTH * 2 + 1) {
             std::cerr << "Reading hash file with incorrect contents... " << filename << std::endl;
             continue;
         }
 
-        char* contentCharacters = contents.data();
+        const char* contentCharacters = contents.data();
         std::array<char, HASH_LENGTH> moonKey {};
         std::array<char, HASH_LENGTH> playerKey {};
         for (int i = 0; i < HASH_LENGTH; i++) {

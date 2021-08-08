@@ -63,7 +63,7 @@ void RelayServer::onClose(connection_hdl&& handle) {
 
     {
         const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
-        if (m_moonIdentifierToRoomMap.contains(identifier)) {
+        if (contains(m_moonIdentifierToRoomMap, identifier)) {
             std::array<char, HASH_LENGTH> room = m_moonIdentifierToRoomMap[identifier];
             m_moonIdentifierToRoomMap.erase(identifier);
 
@@ -163,7 +163,7 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
 uint16_t RelayServer::getIdentifier(connection_hdl* handlePointer) {
     const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
 
-    if (!m_handlePointerToIdentifierMap.contains(handlePointer)) {
+    if (!contains(m_handlePointerToIdentifierMap, handlePointer)) {
         return 0;
     }
 
@@ -196,7 +196,7 @@ uint16_t RelayServer::claimIdentifier(connection_hdl* handlePointer) {
 void RelayServer::releaseIdentifier(connection_hdl* handlePointer) {
     const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
 
-    if (!m_handlePointerToIdentifierMap.contains(handlePointer)) {
+    if (!contains(m_handlePointerToIdentifierMap, handlePointer)) {
         return;
     }
 

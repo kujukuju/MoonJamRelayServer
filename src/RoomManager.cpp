@@ -18,7 +18,7 @@ void RoomManager::createRoom(PacketAccumulator& packetAccumulator, std::array<ch
         m_completedThreads.clear();
     }
 
-    if (m_roomThreads.contains(room)) {
+    if (contains(m_roomThreads, room)) {
         return;
     }
 
