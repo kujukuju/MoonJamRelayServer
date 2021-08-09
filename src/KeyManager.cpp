@@ -18,19 +18,17 @@ void KeyManager::refreshKeys() {
             continue;
         }
 
-        const char* contentCharacters = contents.data();
-        std::array<char, HASH_LENGTH> moonKey {};
-        std::array<char, HASH_LENGTH> playerKey {};
+        std::array<char, HASH_LENGTH> moonKey{};
+        std::array<char, HASH_LENGTH> playerKey{};
         for (int i = 0; i < HASH_LENGTH; i++) {
-            moonKey[i] = contentCharacters[i];
-            playerKey[i] = contentCharacters[i + HASH_LENGTH + 1];
+            moonKey[i] = contents[i];
+            playerKey[i] = contents[i + HASH_LENGTH + 1];
         }
 
         keys.emplace_back(AccessKeys {
                 moonKey,
                 playerKey
         });
-        contents.clear();
     }
 
     const std::lock_guard<std::mutex> keyLock(m_keyMutex);

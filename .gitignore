@@ -6,5 +6,7 @@ build/
 target/
 deploy/
 output/
+out/
 keys/*
 secretkey.txt
+.vs/
