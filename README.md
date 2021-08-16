@@ -5,7 +5,7 @@
 1. Navigate to the moonjam website and generate your secret multiplayer keys. [https://jam.moon2.tv/dashboard](https://jam.moon2.tv/dashboard)
 2. **IMPORTANT** Create a text file in the root directory of your project named `relaykey.txt`.
 3. **IMPORTANT** Inside `relaykey.txt` paste your moon key for now.
-4. **IMPORTANT** Read your secret key from this file. Erros will use this file to compile your two projects (moon project and pleb project).
+4. **IMPORTANT** Read your secret key from this file. Erros will use this file to compile your two projects (moon project and player project).
 5. Create a websocket connection to `wss://relay.moonjam.dev/v1`. If your language/engine requires you to configure your websocket, you should be sending binary data.
 7. Once the connection is established, send your key to connect to your relay server room.
 8. Send your data to the server with your secret key prepended to every message.
@@ -48,19 +48,19 @@ Because this server is meant to be used by multiple people as an API designed fo
 
 Each room is a set of players who receive each others packets.
 
-To use the API you need two separate keys, an authoritative key for moonmoon, and a pleb key for the viewers. You can generate these keys here: [https://jam.moon2.tv/dashboard](https://jam.moon2.tv/dashboard)
+To use the API you need two separate keys, an authoritative key for moonmoon, and a player key for the viewers. You can generate these keys here: [https://jam.moon2.tv/dashboard](https://jam.moon2.tv/dashboard)
 
-Each gamejam game will have it's own unique room so that other people can't interfere. The moon key and the pleb key will be linked to the same room. In order to reduce unnecessary traffic rooms will only be created after moonmoon has connected and sent a message.
+Each gamejam game will have it's own unique room so that other people can't interfere. The moon key and the player key will be linked to the same room. In order to reduce unnecessary traffic rooms will only be created after moonmoon has connected and sent a message.
 
-Similarly if you try to send a message to a room that doesn't yet exist as a pleb your message will be ignored and you may be disconnected.
+Similarly if you try to send a message to a room that doesn't yet exist as a player your message will be ignored and you may be disconnected.
 
 ![Complex Server Diagram](https://github.com/kujukuju/MoonJamRelayServer/raw/master/chart2.png)
 
-So if you have the moon key "**moon**" and the pleb key "**pleb**", the way you connect to your room is that every message you send must be prepended with your key.
+So if you have the moon key "**moon**" and the player key "**pleb**", the way you connect to your room is that every message you send must be prepended with your key.
 
 If you want to send the websocket message "**hey**" as moon, then you should actually send "**moonhey**", and every other client connected to your room will receive this message "**hey**".
 
-Likewise, if you want to send the message "**hey**" as a pleb, then you should actually send "**plebhey**".
+Likewise, if you want to send the message "**hey**" as a player, then you should actually send "**plebhey**".
 
 In reality here is what this will look like as data:
 ```c
@@ -69,7 +69,7 @@ moonhey -> [0x6d, 0x6f, 0x6f, 0x6e, 0x68, 0x65, 0x79]
 plebhey -> [0x70, 0x6c, 0x65, 0x62, 0x68, 0x65, 0x79]
 ```
 
-To reinforce this I'll mention it again; in order to actually establish your connection to a room you must send at least one message so that the server can identify your secret moon/pleb key and place you into the corresponding room. It's fine if this message is just simply "**moon**" or "**pleb**".
+To reinforce this I'll mention it again; in order to actually establish your connection to a room you must send at least one message so that the server can identify your secret moon/player key and place you into the corresponding room. It's fine if this message is just simply "**moon**" or "**pleb**".
 
 ### Ending Notes
 
