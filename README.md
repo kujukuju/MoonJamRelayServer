@@ -38,7 +38,7 @@ void on_message(uint8_t* bytes, uint32_t length) {
 }
 ```
 
-[Simple Server Diagram](https://github.com/kujukuju/MoonJamRelayServer/chart1.png)
+![Simple Server Diagram](https://github.com/kujukuju/MoonJamRelayServer/raw/master/chart1.png)
 
 That is to say that for every message this server receives it just relays that message to every other client.
 
@@ -54,7 +54,7 @@ Each gamejam game will have it's own unique room so that other people can't inte
 
 Similarly if you try to send a message to a room that doesn't yet exist as a pleb your message will be ignored and you may be disconnected.
 
-[Complex Server Diagram](https://github.com/kujukuju/MoonJamRelayServer/chart2.png)
+![Complex Server Diagram](https://github.com/kujukuju/MoonJamRelayServer/raw/master/chart2.png)
 
 So if you have the moon key "**moon**" and the pleb key "**pleb**", the way you connect to your room is that every message you send must be prepended with your key.
 
