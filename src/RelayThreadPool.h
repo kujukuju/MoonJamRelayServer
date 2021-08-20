@@ -2,6 +2,7 @@
 
 #include "RelayThread.h"
 #include "ContiguousQueue.h"
+#include "Helpers.h"
 
 #include <array>
 #include <thread>
@@ -15,21 +16,16 @@ struct RelayThreadController {
 
     void join() const {
         mutex->acquire();
-        // TODO not even sure if I have to unlock here because it just gets thrown away
         mutex->release();
     }
 };
 
 class RelayThreadPool {
 public:
-    explicit RelayThreadPool();
+    explicit RelayThreadPool() = default;
 
     RelayThreadController run(std::function<void()>&& function);
 
 private:
-    void processQueue();
-
     std::array<RelayThread, THREAD_COUNT> m_threads;
-
-    ContiguousQueue<std::function<void()>> m_queued;
 };

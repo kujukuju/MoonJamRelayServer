@@ -14,8 +14,6 @@ RelayThread::RelayThread()
             // allow this thread to be owned by another process
             m_threadLock.release();
 
-            m_done();
-
             // you must call lock to claim ownership then call run to unlock runningLock and get past this line
             m_runningLock.acquire();
 
@@ -25,6 +23,7 @@ RelayThread::RelayThread()
             }
 
             m_function();
+            m_done();
         }
     });
 }

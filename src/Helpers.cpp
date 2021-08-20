@@ -79,3 +79,10 @@ std::string print(std::array<char, HASH_LENGTH> hash) {
 
     return stringified;
 }
+
+FileLogger logger;
+
+LogMessage::~LogMessage() {
+    m_ss << std::endl;
+    logger.log(m_ss.str());
+}

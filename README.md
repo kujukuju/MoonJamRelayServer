@@ -26,6 +26,24 @@ The server has a tickrate of `30` ticks per second. As such, you should only be 
 
 In order to connect your client to your server room you need to send at least one message. It's fine if your first message only contains your secret key.
 
+
+### Libraries
+
+WebSocket support exists in all major engines. Here is a list of helpful links to get you started:
+
+* Unity
+    * https://github.com/endel/NativeWebSocket
+* Unreal
+    * https://docs.unrealengine.com/4.26/en-US/API/Runtime/WebSockets/IWebSocketsManager/
+* Godot
+    * https://docs.godotengine.org/en/stable/tutorials/networking/websocket.html
+* C#
+    * https://docs.microsoft.com/en-us/dotnet/api/system.net.websockets.clientwebsocket
+* JavaScript
+    * https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+* Python
+    * https://github.com/websocket-client/websocket-client
+
 ## Understanding The Server
 
 ### MoonJam Compilation Process

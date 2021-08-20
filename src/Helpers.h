@@ -4,6 +4,10 @@
 #include <array>
 #include <unordered_map>
 #include <map>
+#include <sstream>
+#include <iostream>
+#include <fstream>
+#include <mutex>
 
 static const int HASH_LENGTH = 4;
 
@@ -23,6 +27,67 @@ namespace std {
         }
     };
 }
+
+struct AsyncMessage {
+public:
+    explicit AsyncMessage() = default;
+
+    ~AsyncMessage() {
+        m_ss << std::endl;
+        std::cout << m_ss.str();
+    }
+
+    template <class T>
+    AsyncMessage& operator<<(const T& rhs) {
+        m_ss << rhs;
+        return *this;
+    }
+
+    std::string str() {
+        return m_ss.str();
+    }
+
+private:
+    std::stringstream m_ss;
+};
+
+struct FileLogger {
+public:
+    explicit FileLogger() {
+        const std::lock_guard<std::mutex> lock(m_logMutex);
+        m_logFile.open("log.txt");
+    };
+
+    ~FileLogger() {
+        const std::lock_guard<std::mutex> lock(m_logMutex);
+        m_logFile.close();
+    }
+
+    void log(const std::string& message) {
+        const std::lock_guard<std::mutex> lock(m_logMutex);
+        m_logFile << message;
+    }
+
+private:
+    std::ofstream m_logFile;
+    std::mutex m_logMutex;
+};
+
+struct LogMessage {
+public:
+    explicit LogMessage() = default;
+
+    ~LogMessage();
+
+    template <class T>
+    LogMessage& operator<<(const T& rhs) {
+        m_ss << rhs;
+        return *this;
+    }
+
+private:
+    std::stringstream m_ss;
+};
 
 std::string randomString(int length);
 

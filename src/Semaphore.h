@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Helpers.h"
+
 #include <mutex>
 #include <condition_variable>
 
@@ -38,5 +40,5 @@ private:
     std::condition_variable m_condition;
 
     // initialize as unlocked
-    unsigned long m_locked = false;
+    bool m_locked = false;
 };
