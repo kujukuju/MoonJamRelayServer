@@ -1,10 +1,10 @@
 server {
     listen 8008 http2 ssl;
-    server_name *.moonlightprincess.io;
+    server_name relay.moon2.tv;
 
-    ssl_certificate /etc/letsencrypt/live/relay.veraegames.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/relay.veraegames.com/privkey.pem;
-    # ssl_dhparam /etc/letsencrypt/live/relay.veraegames.com/dh.pem;
+    ssl_certificate /etc/letsencrypt/live/relay.moon2.tv/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/relay.moon2.tv/privkey.pem;
+    # ssl_dhparam /etc/letsencrypt/live/relay.moon2.tv/dh.pem;
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
@@ -35,11 +35,11 @@ server {
 
 server {
     listen 8007 http2 ssl;
-    server_name *.moonlightprincess.io;
+    server_name relay.moon2.tv;
 
-    ssl_certificate /etc/letsencrypt/live/relay.veraegames.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/relay.veraegames.com/privkey.pem;
-    # ssl_dhparam /etc/letsencrypt/live/relay.veraegames.com/dh.pem;
+    ssl_certificate /etc/letsencrypt/live/relay.moon2.tv/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/relay.moon2.tv/privkey.pem;
+    # ssl_dhparam /etc/letsencrypt/live/relay.moon2.tv/dh.pem;
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
@@ -70,11 +70,11 @@ server {
 
 server {
     listen 8006 http2 ssl;
-    server_name *.moonlightprincess.io;
+    server_name relay.moon2.tv;
 
-    ssl_certificate /etc/letsencrypt/live/relay.veraegames.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/relay.veraegames.com/privkey.pem;
-    # ssl_dhparam /etc/letsencrypt/live/relay.veraegames.com/dh.pem;
+    ssl_certificate /etc/letsencrypt/live/relay.moon2.tv/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/relay.moon2.tv/privkey.pem;
+    # ssl_dhparam /etc/letsencrypt/live/relay.moon2.tv/dh.pem;
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;

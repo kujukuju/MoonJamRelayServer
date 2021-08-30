@@ -38,7 +38,6 @@ void WebsocketServer::run() {
 }
 
 void WebsocketServer::onOpen(connection_hdl&& handle) {
-    std::cout << "Raw socket open: " << &handle << std::endl;
     if (!m_openListener) {
         return;
     }

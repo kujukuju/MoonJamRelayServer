@@ -66,6 +66,41 @@ APIServer::APIServer(uint32_t port, const std::string& secret, KeyManager& keyMa
         response.set_content("{\"moonkey\": \"" + moonHash + "\", \"playerkey\": \"" + playerHash + "\"}", "application/json");
     });
 
+    m_server.Post("/get", [this, &secret](const httplib::Request& request, httplib::Response& response) {
+        if (!contains(request.files, "key") || !contains(request.files, "id")) {
+            std::cerr << "Requested new keys without the proper data..." << std::endl;
+            response.status = 511;
+            return;
+        }
+
+        const std::string& key = request.files.find("key")->second.content;
+        if (key != secret) {
+            std::cerr << "Requested to get keys without the proper key... " << std::endl;
+            response.status = 511;
+            return;
+        }
+
+        const std::string& id = request.files.find("id")->second.content;
+
+        // refresh keys before it all starts to avoid duplicates
+        m_keyManager.refreshKeys();
+
+        if (!fileExists("../keys/" + id + ".txt")) {
+            response.status = 200;
+            response.set_content("{}", "application/json");
+            return;
+        }
+
+        std::string contents;
+        readFile(contents, "../keys/" + id + ".txt");
+
+        std::string moonHash = contents.substr(0, HASH_LENGTH);
+        std::string playerHash = contents.substr(HASH_LENGTH + 1, HASH_LENGTH);
+
+        response.status = 200;
+        response.set_content("{\"moonkey\": \"" + moonHash + "\", \"playerkey\": \"" + playerHash + "\"}", "application/json");
+    });
+
     m_server.Post("/delete", [&secret](const httplib::Request& request, httplib::Response& response) {
         if (!contains(request.files, "key") || !contains(request.files, "id")) {
             std::cerr << "Requested to delete keys without the proper data..." << std::endl;
