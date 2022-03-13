@@ -4,8 +4,8 @@ mkdir -p build/
 
 cd build/
 
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_BUILD_TYPE=Release ..
 
-ninja
+make
 
 systemctl restart moonjam-relay
