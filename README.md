@@ -3,13 +3,14 @@
 ### Simple How To Use
 
 1. Navigate to the moonjam website and generate your secret multiplayer keys. [https://jam.moon2.tv/dashboard](https://jam.moon2.tv/dashboard)
-2. **IMPORTANT** Create two text files in the root directory of your project named `moon.txt` and `player.txt`.
-3. **IMPORTANT** These two files will contain your secret moon key and your secret player key respectively.
-4. **IMPORTANT** Your project should read your secret key from the `moon.txt` file.
-5. **IMPORTANT** If this file doesn't exist, your project should fallback to reading the `player.txt` file.
+2. **IMPORTANT** Put these keys into your game as hard coded strings. Example: `String moonkey = "moon"; String playerkey = "pleb";`
+3. **IMPORTANT** Optionally you can have a variable called `bool moon = true;` or `bool moon = false;`.
+4. **IMPORTANT** We will automatically find these key strings and variables _in the source code_, and swap them out when compiling your game.
+5. **IMPORTANT** Check the `moon` variable to determine if the client is the moonmoon client, or the player client. Your game will be compiled twice, and the `moon` variable will be swapped in the source code.
 6. Create a websocket connection to `wss://relay.moonjam.dev/v1`. If your language/engine requires you to configure your websocket, you should be sending binary data.
-7. Once the connection is established, send your key to connect to your relay server room.
-8. Send your data to the server with your secret key prepended to every message.
+7. Once the connection is established, send your 4 character key to connect to your relay server room.
+8. Send your data to the server with your secret 4 character key prepended to the beginning of every message.
+9. If your client is the moon client, prepend your `moonkey`. If your client is the player client, prepend your `playerkey`.
 9. That's it! Continue sending data to the server as your normally would, just be sure you always prepend your secret key.
 
 An example godot project of how to use this API can be found here:
@@ -26,6 +27,14 @@ The server has a tickrate of `30` ticks per second. As such, you should only be 
 
 In order to connect your client to your server room you need to send at least one message. It's fine if your first message only contains your secret key.
 
+### Important Notes
+
+You should test your game at maximum player capacity by simulating clients. For multiplayer games, when you start climbing above 10 players, and especially upwards of 100 to 600 players, you will notice performance issues that may not have been previously obvious.
+
+For example, in the godot demo game linked above we lazily kept kinematic bodies for all players even though physics wasn't simulated. Due to this the game would become noticeably laggy around 200-400 players. Once we removed these unnecessary physics bodies it could easily support 800+ players. It would have been hard to identify this issue without simulating fake players.
+
+See our python test script for an example of how to simulate these fake connections:
+[https://github.com/kujukuju/MoonJamRelayGodotDemo/blob/master/Scene.cs](https://github.com/kujukuju/MoonJamRelayGodotDemo/blob/master/Scene.cs)
 
 ### Libraries
 
@@ -50,11 +59,15 @@ WebSocket support exists in all major engines. Here is a list of helpful links t
 
 In order to streamline the process of compiling these games, be sure to follow the instructions above.
 
-That is to say that you're required to submit your game with a `moon.txt` file that contains your secret moon key, and a `player.txt` file that contains your secret player key.
+That is to say that you're required to submit your game with the moon key and the player key hard coded in your client source code.
 
-Your game will automatically be compiled twice. Once with the `moon.txt` file to generate moon's client, and a second time with the `player.txt` file to generate the player client.
+You can optionally have a boolean variable named "moon" in your client to determine if it's moon or a normal player playing. For example: `bool moon = false;`.
 
-The implication of this is that when your project contains the `moon.txt` file it's expected to read the moon key and behave as moon's client. Otherwise when your project contains the `player.txt` file it's expected to read the player key and behave as the player client.
+Your game will automatically be compiled twice. Once with the `moon` variable set to true to generate moon's client, and a second time with the `moon` variable set to false to generate the player client.
+
+Literally just put the boolean and keys anywhere in the source code. As long as `moon = false` or `moon = true` is found, it will be swapped during compilation.
+
+The implication of this is that when your project has a variable named `moon` that's set to `true` it's expected to behave as moon's client. Otherwise when your project has a variable named `moon` that's set to `false` it's expected to behave as the player client.
 
 The player client will be downloadable from the game jam website when your game is on stream.
 
