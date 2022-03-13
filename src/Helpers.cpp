@@ -72,10 +72,6 @@ std::array<char, HASH_LENGTH> convertHash(const std::string& hash) {
     return value;
 }
 
-std::string print(std::array<char, HASH_LENGTH>& hash) {
-    return std::string(std::begin(hash), std::end(hash));
-}
-
 FileLogger logger;
 
 LogMessage::~LogMessage() {
