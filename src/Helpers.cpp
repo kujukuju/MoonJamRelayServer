@@ -72,12 +72,8 @@ std::array<char, HASH_LENGTH> convertHash(const std::string& hash) {
     return value;
 }
 
-std::string print(std::array<char, HASH_LENGTH> hash) {
-    std::string stringified;
-    stringified.reserve(HASH_LENGTH);
-    std::memcpy(stringified.data(), hash.data(), HASH_LENGTH);
-
-    return stringified;
+std::string print(std::array<char, HASH_LENGTH>& hash) {
+    return std::string(std::begin(hash), std::end(hash));
 }
 
 FileLogger logger;

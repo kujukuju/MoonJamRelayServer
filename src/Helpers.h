@@ -101,7 +101,7 @@ bool deleteFile(const std::string& name);
 
 std::array<char, HASH_LENGTH> convertHash(const std::string& hash);
 
-std::string print(std::array<char, HASH_LENGTH> hash);
+inline std::string print(std::array<char, HASH_LENGTH>& hash);
 
 template<class T, class V>
 bool contains(const std::unordered_map<T, V>& map, const T& key) {

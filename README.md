@@ -117,6 +117,8 @@ plebhey -> [0x70, 0x6c, 0x65, 0x62, 0x68, 0x65, 0x79]
 
 To reinforce this I'll mention it again; in order to actually establish your connection to a room you must send at least one message so that the server can identify your secret moon/player key and place you into the corresponding room. It's fine if this message is just simply "**moon**" or "**pleb**".
 
+A limitation to also keep in mind with this relay is that your bottleneck will often be the outgoing bandwidth on the relay. As the number of players grow, the server has to send out more data at a geometric rate. You can use this [Desmos Graph](https://www.desmos.com/calculator/asi1qiv3fy) to get a better idea of what your packet size and tick rate should be for your game.
+
 ### Ending Notes
 
 That's about all there is to the server. Although conceptually the server is simple, the details specified here might seem a little confusing. However, actually using the server isn't complex. So if this is overwhelming then ignore everything you read here and just look at the "How To Use" section.
