@@ -53,7 +53,7 @@ WebSocket support exists in all major engines. Here is a list of helpful links t
 * Python
     * https://github.com/websocket-client/websocket-client
 
-## Understanding The Server
+## Understanding The Server (NOT IMPORTANT)
 
 ### MoonJam Compilation Process
 
@@ -71,7 +71,7 @@ The implication of this is that when your project has a variable named `moon` th
 
 The player client will be downloadable from the game jam website when your game is on stream.
 
-### Simple Design Introduction
+### Simple Design Introduction (NOT IMPORTANT)
 
 The moonjam relay server is a very simple websocket server that simply accepts messages from a client and then sends those messages to all other clients. You can see that it just "relays" the messages to everyone who is currently connected.
 
@@ -88,7 +88,7 @@ void on_message(uint8_t* bytes, uint32_t length) {
 
 That is to say that for every message this server receives it just relays that message to every other client.
 
-### More Complex Design Introduction
+### More Complex Design Introduction (NOT IMPORTANT)
 
 Because this server is meant to be used by multiple people as an API designed for the moonjam, the server expands on the above relay idea and adds "rooms".
 
@@ -125,7 +125,7 @@ That's about all there is to the server. Although conceptually the server is sim
 
 ---
 
-## Installation Stuff
+## Installation Stuff (NOT IMPORTANT AT ALL) (DON'T EVEN READ THIS)
 
 ### Folders
 
