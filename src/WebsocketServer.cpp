@@ -7,6 +7,7 @@ WebsocketServer::WebsocketServer(const uint16_t port) {
     // turn off logging
     // TODO does this turn it off or on? lol
     m_server.clear_access_channels(websocketpp::log::alevel::all);
+    m_server.set_error_channels(websocketpp::log::alevel::none);
 
     // register handler callbacks
     m_server.set_open_handler([this](auto&& PH1) {

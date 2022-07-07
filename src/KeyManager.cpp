@@ -14,7 +14,7 @@ void KeyManager::refreshKeys() {
     for (const auto& entry : std::filesystem::directory_iterator("../keys")) {
         std::string filename = entry.path().string();
         readFile(contents, filename);
-        if (contents.length() != HASH_LENGTH * 2 + 1) {
+        if (contents.length() < HASH_LENGTH * 2 + 1) {
             std::cerr << "Reading hash file with incorrect contents... " << filename << std::endl;
             continue;
         }
