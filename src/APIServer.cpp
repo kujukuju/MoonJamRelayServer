@@ -23,6 +23,18 @@ APIServer::APIServer(uint32_t port, const std::string& secret, KeyManager& keyMa
         }
 
         const std::string& id = request.files.find("id")->second.content;
+        int playerLimit = DEFAULT_PLAYER_LIMIT;
+        if (contains(request.files, "limit")) {
+            std::string playerLimitString = request.files.find("limit")->second.content;
+            std::regex validPlayerLimitRegex("[0-9]+");
+            if (std::regex_match(playerLimitString, validPlayerLimitRegex)) {
+                try {
+                    playerLimit = std::stoi(playerLimitString);
+                } catch (...) {
+                    playerLimit = DEFAULT_PLAYER_LIMIT;
+                }
+            }
+        }
 
         // refresh keys before it all starts to avoid duplicates
         m_keyManager.refreshKeys();
@@ -96,9 +108,13 @@ APIServer::APIServer(uint32_t port, const std::string& secret, KeyManager& keyMa
 
         std::string moonHash = contents.substr(0, HASH_LENGTH);
         std::string playerHash = contents.substr(HASH_LENGTH + 1, HASH_LENGTH);
+        std::string playerLimit = std::to_string(DEFAULT_PLAYER_LIMIT);
+        if (contents.length() > HASH_LENGTH * 2 + 1) {
+            playerLimit = contents.substr(HASH_LENGTH * 2 + 2);
+        }
 
         response.status = 200;
-        response.set_content("{\"moonkey\": \"" + moonHash + "\", \"playerkey\": \"" + playerHash + "\"}", "application/json");
+        response.set_content("{\"moonkey\": \"" + moonHash + "\", \"playerkey\": \"" + playerHash + "\", \"playerLimit\": " + playerLimit + "\"}", "application/json");
     });
 
     m_server.Post("/delete", [&secret](const httplib::Request& request, httplib::Response& response) {

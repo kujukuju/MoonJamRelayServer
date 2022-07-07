@@ -103,6 +103,26 @@ void PacketAccumulator::getConnections(std::vector<ReceivedConnection>& connecti
     std::copy(existing.begin(), existing.end(), std::back_inserter(connections));
 }
 
+int PacketAccumulator::getConnectionCountWithoutConnection(uint16_t identifier, std::array<char, HASH_LENGTH> room) {
+    const std::lock_guard<std::mutex> handleLock(m_handleMutex);
+
+    if (!contains(m_handles, room)) {
+        return 0;
+    }
+
+    auto& connectionList =  m_handles[room];
+    int count = connectionList.size();
+    auto it = std::find_if(connectionList.begin(), connectionList.end(), [identifier](const auto& entry) {
+        return identifier == entry.identifier;
+    });
+
+    if (it != connectionList.end()) {
+        count -= 1;
+    }
+
+    return count;
+}
+
 void PacketAccumulator::getPackets(std::vector<ReceivedPacket>& packets, std::array<char, HASH_LENGTH> room) {
     packets.clear();
 

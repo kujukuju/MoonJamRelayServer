@@ -84,7 +84,10 @@ void RelayServer::onClose(connection_hdl&& handle) {
         }
     }
 
-    m_packetAccumulator.removeConnection(identifier);
+    {
+        const std::lock_guard<std::mutex> playerCountLock(m_playerCountMutex);
+        m_packetAccumulator.removeConnection(identifier);
+    }
 
     releaseIdentifier(handlePointer);
 }
@@ -115,7 +118,8 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
     }
 
     // add a moon client, we allow for multiple moon clients
-    if (room == hash) {
+    bool moonClient = room == hash;
+    if (moonClient) {
         const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
         m_moonIdentifierToRoomMap[identifier] = room;
     }
@@ -123,7 +127,7 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
     // this checks that the room exists, which would be a result of moons client being connected
     if (!m_packetAccumulator.hasRoom(room)) {
         // if this client is moon, create the room
-        if (room == hash) {
+        if (moonClient) {
             // const std::lock_guard<std::mutex> identifierLock(m_identifierMutex);
 
             // if (m_moonIdentifierToRoomMap.contains(identifier)) {
@@ -142,6 +146,17 @@ void RelayServer::onMessage(connection_hdl&& handle, const std::string& message)
     // validate the max packet size
     if (message.size() > HASH_LENGTH + MAX_PACKET_SIZE) {
         // don't recognize this message... do we send back an error?
+        return;
+    }
+
+    int maxPlayerCount = m_keyManager.getPlayerLimit(room);
+
+    // lock here because we get the player count, and then we potentially add the player to the list in the add packet method
+    const std::lock_guard<std::mutex> playerCountLock(m_playerCountMutex);
+    int currentConnectionCount = m_packetAccumulator.getConnectionCountWithoutConnection(identifier, room);
+
+    if (!moonClient && currentConnectionCount >= maxPlayerCount) {
+        close(std::move(handle), websocketpp::close::status::internal_endpoint_error, "Server is full. Please try again later.");
         return;
     }
 

@@ -36,6 +36,7 @@ private:
     PacketAccumulator& m_packetAccumulator;
 
     std::mutex m_identifierMutex;
+    std::mutex m_playerCountMutex;
     std::unordered_map<connection_hdl*, uint16_t> m_handlePointerToIdentifierMap;
     std::vector<uint16_t> m_reservedIdentifiers;
     std::unordered_map<uint16_t, std::array<char, HASH_LENGTH>> m_moonIdentifierToRoomMap;

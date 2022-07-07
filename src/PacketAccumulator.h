@@ -40,6 +40,8 @@ public:
 
     void getConnections(std::vector<ReceivedConnection>& connections, std::array<char, HASH_LENGTH> room);
 
+    int getConnectionCountWithoutConnection(uint16_t identifier, std::array<char, HASH_LENGTH> room);
+
     void getPackets(std::vector<ReceivedPacket>& packets, std::array<char, HASH_LENGTH> room);
 
 private:

@@ -10,6 +10,7 @@
 #include <mutex>
 
 static const int HASH_LENGTH = 4;
+static const int DEFAULT_PLAYER_LIMIT = 80;
 
 namespace std {
     template<>
